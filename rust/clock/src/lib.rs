@@ -23,27 +23,28 @@ impl Clock {
         (hours, minutes)
     }
 
-    fn raise_hours_to_positive(&mut self) -> i32 {
-        while self.hours < 0 {
-            self.hours += 24;
-        }
-        self.hours
-    }
-
-    pub fn add_minutes(&self, minutes: i32) -> Self {
+    fn raise_hours_to_positive(&self) -> Clock {
         let mut hours = self.hours;
         while hours < 0 {
             hours += 24;
         }
-        let mut minutes = self.minutes + minutes;
+        Clock { hours, minutes: self.minutes }
+    }
+
+    pub fn add_minutes(&self, minutes: i32) -> Self {
+        let mut hours = self.hours;
+        let clock = self.raise_hours_to_positive();
+        let mut minutes = clock.minutes + minutes;
+
         let calc_min_and_hours = Self::get_minutes_and_hours(minutes);
         minutes = calc_min_and_hours.1;
-        hours += calc_min_and_hours.0;
-        while hours < 0 {
-            hours = 24 + hours;
-        }
-        hours = hours % 24;
-        Self { hours, minutes }
+        hours = clock.hours + calc_min_and_hours.0;
+        let clock = Clock { hours, minutes };
+
+        let clock = clock.raise_hours_to_positive();
+        hours = clock.hours % 24;
+
+        Self { hours, minutes: clock.minutes }
     }
 }
 
